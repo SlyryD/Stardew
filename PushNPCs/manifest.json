@@ -1,0 +1,9 @@
+{
+  "Name": "Push NPCs",
+  "Author": "SlyryD",
+  "Version": "1.0.0",
+  "MinimumApiVersion": "2.6-beta",
+  "Description": "Allows you to push NPCs.",
+  "UniqueID": "SlyryD.PushNPCs",
+  "EntryDll": "PushNPCs.dll"
+}
