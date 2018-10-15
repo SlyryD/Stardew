@@ -2,8 +2,9 @@
   "Name": "Push NPCs",
   "Author": "SlyryD",
   "Version": "1.0.0",
-  "MinimumApiVersion": "2.6-beta",
   "Description": "Allows you to push NPCs.",
   "UniqueID": "SlyryD.PushNPCs",
-  "EntryDll": "PushNPCs.dll"
+  "EntryDll": "PushNPCs.dll",
+  "MinimumApiVersion": "2.0",
+  "UpdateKeys": []
 }
