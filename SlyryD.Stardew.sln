@@ -3,9 +3,25 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28010.2046
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlyryD.Stardew", "PushNPCs\PushNPCs.csproj", "{A7CEDA02-288E-4505-87F3-EE0FB341ACC5}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "root", "root", "{6D9328B9-2291-49A1-AAAA-1EA29F187E07}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+		GlobalAssemblyInfo.cs = GlobalAssemblyInfo.cs
+		latest-versions.json = latest-versions.json
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = ".Common", "Common\.Common.shproj", "{71AC53D4-E99E-42A8-AAC4-DCCF68A1DA10}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PushNPCs", "PushNPCs\PushNPCs.csproj", "{A7CEDA02-288E-4505-87F3-EE0FB341ACC5}"
 EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Common\Common.projitems*{71ac53d4-e99e-42a8-aac4-dccf68a1da10}*SharedItemsImports = 13
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU

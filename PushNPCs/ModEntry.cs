@@ -11,6 +11,12 @@ namespace SlyryD.Stardew.PushNPCs
     public class ModEntry : Mod
     {
         /*********
+        ** Properties
+        *********/
+        /// <summary>The mod configuration.</summary>
+        private ModConfig Config;
+
+        /*********
         ** Public methods
         *********/
         /// <summary>The mod entry point, called after the mod is first loaded.</summary>
@@ -33,8 +39,19 @@ namespace SlyryD.Stardew.PushNPCs
             if (!Context.IsWorldReady)
                 return;
 
-            // print button presses to the console window
-            this.Monitor.Log($"{Game1.player.Name} pressed {e.Button}.");
+            // perform bound action
+                var controls = this.Config.Controls;
+
+                if (controls.ToggleLookup.Contains(e.Button))
+                    this.ToggleLookup(LookupMode.Cursor);
+                else if (controls.ToggleLookupInFrontOfPlayer.Contains(e.Button))
+                    this.ToggleLookup(LookupMode.FacingPlayer);
+                else if (controls.ScrollUp.Contains(e.Button))
+                    (Game1.activeClickableMenu as LookupMenu)?.ScrollUp();
+                else if (controls.ScrollDown.Contains(e.Button))
+                    (Game1.activeClickableMenu as LookupMenu)?.ScrollDown();
+                else if (controls.ToggleDebug.Contains(e.Button) && Context.IsPlayerFree)
+                    this.DebugInterface.Enabled = !this.DebugInterface.Enabled;
         }
     }
 }

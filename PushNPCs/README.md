@@ -13,7 +13,7 @@ Compatible with Stardew Valley 1.3+ on Linux/Mac/Windows, both single-player and
 
 ## Install
 1. [Install the latest version of SMAPI](https://smapi.io/).
-1. [Install this mod from Nexus mods](http://www.nexusmods.com/stardewvalley/mods/9876).
+1. [Install this mod from Nexus mods](TODO: link).
 1. Run the game using SMAPI.
 
 ## Use
@@ -28,5 +28,5 @@ it will .... If the main player doesn't have it installed, they'll ....
 
 ## See also
 * [release notes](release-notes.md)
-* [Nexus mod](http://www.nexusmods.com/stardewvalley/mods/9876)
+* [Nexus mod](TODO: link)
 * [Discussion thread](http://community.playstarbound.com/threads/...)
