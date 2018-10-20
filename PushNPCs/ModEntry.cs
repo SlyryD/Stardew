@@ -1,5 +1,10 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
+using SlyryD.Stardew.Common;
+using SlyryD.Stardew.PushNPCs.Framework;
+using SlyryD.Stardew.PushNPCs.Framework.Constants;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Utilities;
@@ -46,12 +51,15 @@ namespace SlyryD.Stardew.PushNPCs
                     this.ToggleLookup(LookupMode.Cursor);
                 else if (controls.ToggleLookupInFrontOfPlayer.Contains(e.Button))
                     this.ToggleLookup(LookupMode.FacingPlayer);
-                else if (controls.ScrollUp.Contains(e.Button))
-                    (Game1.activeClickableMenu as LookupMenu)?.ScrollUp();
-                else if (controls.ScrollDown.Contains(e.Button))
-                    (Game1.activeClickableMenu as LookupMenu)?.ScrollDown();
-                else if (controls.ToggleDebug.Contains(e.Button) && Context.IsPlayerFree)
-                    this.DebugInterface.Enabled = !this.DebugInterface.Enabled;
+        }
+
+        /****
+        ** Helpers
+        ****/
+        /// <summary>Show the lookup UI for the current target.</summary>
+        /// <param name="lookupMode">The lookup target mode.</param>
+        private void ToggleLookup(LookupMode lookupMode)
+        {
         }
     }
 }

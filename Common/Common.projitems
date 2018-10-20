@@ -12,6 +12,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)CommonHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataParsers\CropDataParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Integrations\BaseIntegration.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Integrations\IModIntegration.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Integrations\PushNPCs\IPushNPCsApi.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Integrations\PushNPCs\PushNPCsIntegration.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PathUtilities.cs" />

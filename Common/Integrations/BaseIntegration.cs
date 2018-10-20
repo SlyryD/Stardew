@@ -47,7 +47,7 @@ namespace SlyryD.Stardew.Common.Integrations
             this.Monitor = monitor;
 
             // validate mod
-            IManifest manifest = modRegistry.Get(this.ModID)?.Manifest;
+            IManifest manifest = modRegistry.Get(this.ModID);
             if (manifest == null)
                 return;
             if (manifest.Version.IsOlderThan(minVersion))
