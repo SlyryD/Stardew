@@ -65,6 +65,7 @@ namespace SlyryD.Stardew.PushNPCs
             // hook up events
             //TimeEvents.AfterDayStarted += this.TimeEvents_AfterDayStarted;
             InputEvents.ButtonPressed += this.InputEvents_ButtonPressed;
+            GraphicsEvents.OnPostRenderHudEvent += this.GraphicsEvents_OnPostRenderHudEvent;
         }
 
         /// <summary>The method invoked when the player presses a controller, keyboard, or mouse button.</summary>
@@ -77,10 +78,26 @@ namespace SlyryD.Stardew.PushNPCs
                 return;
 
             // perform bound action
-                var controls = this.Config.Controls;
+            var controls = this.Config.Controls;
 
-                if (controls.Push.Contains(e.Button))
-                    this.Push();
+            if (controls.Push.Contains(e.Button))
+            {
+                this.Push();
+            }
+            else if (controls.ToggleDebug.Contains(e.Button) && Context.IsPlayerFree)
+            {
+                this.DebugInterface.Enabled = !this.DebugInterface.Enabled;
+            }
+        }
+
+        /// <summary>The method invoked when the interface is rendering.</summary>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="e">The event data.</param>
+        private void GraphicsEvents_OnPostRenderHudEvent(object sender, EventArgs e)
+        {
+            // render debug interface
+            if (this.DebugInterface.Enabled)
+                this.DebugInterface.Draw();
         }
 
         /****

@@ -26,7 +26,7 @@ namespace SlyryD.Stardew.PushNPCs.Framework
 
             /// <summary>Toggle the display of debug information.</summary>
             [JsonConverter(typeof(StringEnumArrayConverter))]
-            public SButton[] ToggleDebug { get; set; } = new SButton[0];
+            public SButton[] ToggleDebug { get; set; } = { SButton.F5 }; // new SButton[0];
         }
     }
 }
