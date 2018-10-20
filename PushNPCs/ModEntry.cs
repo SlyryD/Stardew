@@ -21,6 +21,18 @@ namespace SlyryD.Stardew.PushNPCs
         /// <summary>The mod configuration.</summary>
         private ModConfig Config;
 
+        /****
+        ** State
+        ****/
+        /// <summary>Provides utility methods for interacting with the game code.</summary>
+        private GameHelper GameHelper;
+
+        /// <summary>Finds and analyses lookup targets in the world.</summary>
+        private TargetFactory TargetFactory;
+
+        /// <summary>Draws debug information to the screen.</summary>
+        private DebugInterface DebugInterface;
+
         /*********
         ** Public methods
         *********/
@@ -28,13 +40,32 @@ namespace SlyryD.Stardew.PushNPCs
         /// <param name="helper">Provides simplified APIs for writing mods.</param>
         public override void Entry(IModHelper helper)
         {
-            InputEvents.ButtonPressed += this.InputEvents_ButtonPressed;
+            // load config
+            this.Config = this.Helper.ReadConfig<ModConfig>();
+
+            // hook up events
+            GameEvents.FirstUpdateTick += this.GameEvents_FirstUpdateTick;
         }
 
 
         /*********
         ** Private methods
         *********/
+        /// <summary>The method invoked on the first update tick, once all mods are initialised.</summary>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="e">The event data.</param>
+        private void GameEvents_FirstUpdateTick(object sender, EventArgs e)
+        {
+            // initialise functionality
+            this.GameHelper = new GameHelper();
+            this.TargetFactory = new TargetFactory(this.Metadata, this.Helper.Translation, this.Helper.Reflection, this.GameHelper);
+            this.DebugInterface = new DebugInterface(this.GameHelper, this.TargetFactory, this.Config, this.Monitor);
+
+            // hook up events
+            //TimeEvents.AfterDayStarted += this.TimeEvents_AfterDayStarted;
+            InputEvents.ButtonPressed += this.InputEvents_ButtonPressed;
+        }
+
         /// <summary>The method invoked when the player presses a controller, keyboard, or mouse button.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event data.</param>
@@ -47,19 +78,17 @@ namespace SlyryD.Stardew.PushNPCs
             // perform bound action
                 var controls = this.Config.Controls;
 
-                if (controls.ToggleLookup.Contains(e.Button))
-                    this.ToggleLookup(LookupMode.Cursor);
-                else if (controls.ToggleLookupInFrontOfPlayer.Contains(e.Button))
-                    this.ToggleLookup(LookupMode.FacingPlayer);
+                if (controls.Push.Contains(e.Button))
+                    this.Push();
         }
 
         /****
         ** Helpers
         ****/
-        /// <summary>Show the lookup UI for the current target.</summary>
-        /// <param name="lookupMode">The lookup target mode.</param>
-        private void ToggleLookup(LookupMode lookupMode)
+        /// <summary>Push the NPC in front of the player.</summary>
+        private void Push()
         {
+            this.Monitor.Log("Push");
         }
     }
 }

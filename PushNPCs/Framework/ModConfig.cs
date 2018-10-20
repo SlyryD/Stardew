@@ -10,18 +10,6 @@ namespace SlyryD.Stardew.PushNPCs.Framework
         /*********
         ** Accessors
         *********/
-        /// <summary>Whether to close the lookup UI when the lookup key is release.</summary>
-        public bool HideOnKeyUp { get; set; }
-
-        /// <summary>The amount to scroll long content on each up/down scroll.</summary>
-        public int ScrollAmount { get; set; } = 160;
-
-        /// <summary>Whether to show advanced data mining fields.</summary>
-        public bool ShowDataMiningFields { get; set; }
-
-        /// <summary>Whether to include map tiles as lookup targets.</summary>
-        public bool EnableTileLookups { get; set; }
-
         /// <summary>The control bindings.</summary>
         public ModConfigControls Controls { get; set; } = new ModConfigControls();
 
@@ -34,19 +22,7 @@ namespace SlyryD.Stardew.PushNPCs.Framework
         {
             /// <summary>The control which toggles the lookup UI for something under the cursor.</summary>
             [JsonConverter(typeof(StringEnumArrayConverter))]
-            public SButton[] ToggleLookup { get; set; } = { SButton.F1 };
-
-            /// <summary>The control which toggles the lookup UI for something in front of the player.</summary>
-            [JsonConverter(typeof(StringEnumArrayConverter))]
-            public SButton[] ToggleLookupInFrontOfPlayer { get; set; } = new SButton[0];
-
-            /// <summary>The control which scrolls up long content.</summary>
-            [JsonConverter(typeof(StringEnumArrayConverter))]
-            public SButton[] ScrollUp { get; set; } = { SButton.Up };
-
-            /// <summary>The control which scrolls down long content.</summary>
-            [JsonConverter(typeof(StringEnumArrayConverter))]
-            public SButton[] ScrollDown { get; set; } = { SButton.Down };
+            public SButton[] Push { get; set; } = { SButton.P };
 
             /// <summary>Toggle the display of debug information.</summary>
             [JsonConverter(typeof(StringEnumArrayConverter))]
