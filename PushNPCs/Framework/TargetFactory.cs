@@ -55,7 +55,7 @@ namespace SlyryD.Stardew.PushNPCs.Framework
         /// <param name="location">The current location.</param>
         /// <param name="originTile">The tile from which to search for targets.</param>
         /// <param name="includeMapTile">Whether to allow matching the map tile itself.</param>
-        public IEnumerable<ITarget> GetNearbyTargets(GameLocation location, Vector2 originTile, bool includeMapTile)
+        public IEnumerable<ITarget> GetNearbyTargets(GameLocation location, Vector2 originTile)
         {
             // NPCs
             foreach (NPC npc in location.characters)
@@ -87,39 +87,8 @@ namespace SlyryD.Stardew.PushNPCs.Framework
                 yield return new FarmAnimalTarget(this.GameHelper, animal, animal.getTileLocation());
             }
 
-            // map objects
-            foreach (KeyValuePair<Vector2, SObject> pair in location.objects.Pairs)
-            {
-                Vector2 spriteTile = pair.Key;
-                SObject obj = pair.Value;
-
-                if (!this.GameHelper.CouldSpriteOccludeTile(spriteTile, originTile))
-                    continue;
-
-                yield return new ObjectTarget(this.GameHelper, obj, spriteTile, this.Reflection);
-            }
-
-            // furniture
-            if (location is DecoratableLocation decoratableLocation)
-            {
-                foreach (var furniture in decoratableLocation.furniture)
-                    yield return new ObjectTarget(this.GameHelper, furniture, furniture.TileLocation, this.Reflection);
-            }
-
-            // terrain features
-            foreach (KeyValuePair<Vector2, TerrainFeature> pair in location.terrainFeatures.Pairs)
-            {
-                Vector2 spriteTile = pair.Key;
-                TerrainFeature feature = pair.Value;
-
-                if (!this.GameHelper.CouldSpriteOccludeTile(spriteTile, originTile))
-                    continue;
-
-                yield return new UnknownTarget(this.GameHelper, feature, spriteTile);
-            }
-
             // players
-            foreach (var farmer in location.farmers)
+            foreach (Farmer farmer in location.farmers)
             {
                 if (!this.GameHelper.CouldSpriteOccludeTile(farmer.getTileLocation(), originTile))
                     continue;
@@ -132,12 +101,13 @@ namespace SlyryD.Stardew.PushNPCs.Framework
         /// <param name="location">The current location.</param>
         /// <param name="tile">The tile to search.</param>
         /// <param name="includeMapTile">Whether to allow matching the map tile itself.</param>
-        public ITarget GetTargetFromTile(GameLocation location, Vector2 tile, bool includeMapTile)
+        public ITarget GetTargetFromTile(GameLocation location, Vector2 tile)
         {
             return (
-                from target in this.GetNearbyTargets(location, tile, includeMapTile)
+                from target in this.GetNearbyTargets(location, tile)
                 where
                     target.Type != TargetType.Unknown
+                    && target.Value != Game1.player
                     && target.IsAtTile(tile)
                 select target
             ).FirstOrDefault();
@@ -148,12 +118,12 @@ namespace SlyryD.Stardew.PushNPCs.Framework
         /// <param name="tile">The tile to search.</param>
         /// <param name="position">The viewport-relative pixel coordinate to search.</param>
         /// <param name="includeMapTile">Whether to allow matching the map tile itself.</param>
-        public ITarget GetTargetFromScreenCoordinate(GameLocation location, Vector2 tile, Vector2 position, bool includeMapTile)
+        public ITarget GetTargetFromScreenCoordinate(GameLocation location, Vector2 tile, Vector2 position)
         {
             // get target sprites which might overlap cursor position (first approximation)
             Rectangle tileArea = this.GameHelper.GetScreenCoordinatesFromTile(tile);
             var candidates = (
-                from target in this.GetNearbyTargets(location, tile, includeMapTile)
+                from target in this.GetNearbyTargets(location, tile)
                 let spriteArea = target.GetSpriteArea()
                 let isAtTile = target.IsAtTile(tile)
                 where

@@ -22,11 +22,11 @@ namespace SlyryD.Stardew.PushNPCs.Framework
         {
             /// <summary>The control which toggles the lookup UI for something under the cursor.</summary>
             [JsonConverter(typeof(StringEnumArrayConverter))]
-            public SButton[] Push { get; set; } = { SButton.P };
+            public SButton[] Push { get; set; } = { SButton.Q };
 
             /// <summary>Toggle the display of debug information.</summary>
             [JsonConverter(typeof(StringEnumArrayConverter))]
-            public SButton[] ToggleDebug { get; set; } = { SButton.F5 }; // new SButton[0];
+            public SButton[] ToggleDebug { get; set; } = { SButton.F5 };
         }
     }
 }

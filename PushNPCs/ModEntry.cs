@@ -10,6 +10,7 @@ using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Utilities;
 using StardewValley;
+using SlyryD.Stardew.PushNPCs.Framework.Targets;
 
 namespace SlyryD.Stardew.PushNPCs
 {
@@ -106,7 +107,63 @@ namespace SlyryD.Stardew.PushNPCs
         /// <summary>Push the NPC in front of the player.</summary>
         private void Push()
         {
-            this.Monitor.Log("Push");
+            // TODO: Search positions in front of player instead of using tiles
+            ITarget target = this.TargetFactory.GetTargetFromTile(Game1.currentLocation, Game1.player.getTileLocation())
+                ?? this.TargetFactory.GetTargetFromTile(Game1.currentLocation, this.GetTileInFront());
+            if (target != null) // TODO: Figure out when this is null
+            {
+                switch (target.Type)
+                {
+                    case TargetType.Horse:
+                    case TargetType.Junimo:
+                    case TargetType.Monster:
+                    case TargetType.Pet:
+                    case TargetType.Villager:
+                        var npc = target.GetValue<NPC>();
+                        this.Monitor.Log("NPC: " + npc.Name);
+                        npc.setTileLocation(2 * npc.getTileLocation() - Game1.player.getTileLocation());
+                        break;
+                    case TargetType.FarmAnimal:
+                        var animal = target.GetValue<FarmAnimal>();
+                        this.Monitor.Log("Animal: " + animal.Name);
+                        animal.setTileLocation(2 * animal.getTileLocation() - Game1.player.getTileLocation());
+                        break;
+                    case TargetType.Farmer:
+                        var farmer = target.GetValue<Farmer>();
+                        this.Monitor.Log("Farmer: " + farmer.Name);
+                        farmer.setTileLocation(2 * farmer.getTileLocation() - Game1.player.getTileLocation());
+                        break;
+                    default:
+                        var obj = target.GetValue<StardewValley.Object>();
+                        this.Monitor.Log("Unpushable object: " + obj.Name);
+                        break;
+                }
+            }
+        }
+
+        private Vector2 FacingDirectionToTileOffset(int facingDirection)
+        {
+            switch (facingDirection)
+            {
+                case 0:
+                    return Character.AdjacentTilesOffsets[2];
+                case 1:
+                    return Character.AdjacentTilesOffsets[0];
+                case 2:
+                    return Character.AdjacentTilesOffsets[3];
+                case 3:
+                    return Character.AdjacentTilesOffsets[1];
+                default:
+                    throw new Exception("Invalid facing direction");
+            }
+        }
+
+        private Vector2 GetTileInFront()
+        {
+            Farmer player = Game1.player;
+            return player.getTileLocation() + this.FacingDirectionToTileOffset(player.FacingDirection);
+            //this.Monitor.Log("Position: " + string.Join(",", player.Position));
+            //this.Monitor.Log("Position in front: " + string.Join(",", player.Position + Game1.tileSize * this.FacingDirectionToTileOffset(player.FacingDirection)));
         }
     }
 }
