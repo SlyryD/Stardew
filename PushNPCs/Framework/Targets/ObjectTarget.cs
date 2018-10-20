@@ -1,7 +1,7 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-usingSlyryD.Stardew.Common;
+using SlyryD.Stardew.Common;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Objects;

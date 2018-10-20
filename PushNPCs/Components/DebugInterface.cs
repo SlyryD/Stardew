@@ -6,7 +6,6 @@ using Microsoft.Xna.Framework.Graphics;
 using SlyryD.Stardew.Common;
 using SlyryD.Stardew.PushNPCs.Framework;
 using SlyryD.Stardew.PushNPCs.Framework.Constants;
-using SlyryD.Stardew.PushNPCs.Framework.Subjects;
 using SlyryD.Stardew.PushNPCs.Framework.Targets;
 using StardewModdingAPI;
 using StardewValley;
@@ -59,8 +58,7 @@ namespace SlyryD.Stardew.PushNPCs.Components
         }
 
         /// <summary>Draw debug metadata to the screen.</summary>
-        /// <param name="spriteBatch">The sprite batch being drawn.</param>
-        public void Draw(SpriteBatch spriteBatch)
+        public void Draw()
         {
             if (!this.Enabled)
                 return;
@@ -73,58 +71,7 @@ namespace SlyryD.Stardew.PushNPCs.Components
                 Vector2 cursorPosition = this.GameHelper.GetScreenCoordinatesFromCursor();
 
                 // show 'debug enabled' warning + cursor position
-                {
-                    string metadata = $"{this.WarningText} Cursor tile ({cursorTile.X}, {cursorTile.Y}), position ({cursorPosition.X}, {cursorPosition.Y}).";
-                    this.GameHelper.DrawHoverBox(spriteBatch, metadata, Vector2.Zero, Game1.viewport.Width);
-                }
-
-                // show cursor pixel
-                spriteBatch.DrawLine(cursorPosition.X - 1, cursorPosition.Y - 1, new Vector2(Game1.pixelZoom, Game1.pixelZoom), Color.DarkRed);
-
-                // show targets within detection radius
-                Rectangle tileArea = this.GameHelper.GetScreenCoordinatesFromTile(Game1.currentCursorTile);
-                IEnumerable<ITarget> targets = this.TargetFactory
-                    .GetNearbyTargets(currentLocation, cursorTile, includeMapTile: false)
-                    .OrderBy(p => p.Type == TargetType.Unknown ? 0 : 1);
-                // if targets overlap, prioritise info on known targets
-                foreach (ITarget target in targets)
-                {
-                    // get metadata
-                    bool spriteAreaIntersects = target.GetSpriteArea().Intersects(tileArea);
-                    ISubject subject = this.TargetFactory.GetSubjectFrom(target);
-
-                    // draw tile
-                    {
-                        Rectangle tile = this.GameHelper.GetScreenCoordinatesFromTile(target.GetTile());
-                        Color color = (subject != null ? Color.Green : Color.Red) * .5f;
-                        spriteBatch.DrawLine(tile.X, tile.Y, new Vector2(tile.Width, tile.Height), color);
-                    }
-
-                    // draw sprite box
-                    if (subject != null)
-                    {
-                        int borderSize = 3;
-                        Color borderColor = Color.Green;
-                        if (!spriteAreaIntersects)
-                        {
-                            borderSize = 1;
-                            borderColor *= 0.5f;
-                        }
-
-                        Rectangle spriteBox = target.GetSpriteArea();
-                        spriteBatch.DrawLine(spriteBox.X, spriteBox.Y, new Vector2(spriteBox.Width, borderSize), borderColor); // top
-                        spriteBatch.DrawLine(spriteBox.X, spriteBox.Y, new Vector2(borderSize, spriteBox.Height), borderColor); // left
-                        spriteBatch.DrawLine(spriteBox.X + spriteBox.Width, spriteBox.Y, new Vector2(borderSize, spriteBox.Height), borderColor); // right
-                        spriteBatch.DrawLine(spriteBox.X, spriteBox.Y + spriteBox.Height, new Vector2(spriteBox.Width, borderSize), borderColor); // bottom
-                    }
-                }
-
-                // show current target name (if any)
-                {
-                    ISubject subject = this.TargetFactory.GetSubjectFrom(Game1.player, currentLocation, LookupMode.Cursor, includeMapTile: false);
-                    if (subject != null)
-                        this.GameHelper.DrawHoverBox(spriteBatch, subject.Name, new Vector2(Game1.getMouseX(), Game1.getMouseY()) + new Vector2(Game1.tileSize / 2f), Game1.viewport.Width / 4f);
-                }
+                this.GameHelper.ShowInfoMessage($"{this.WarningText} Cursor tile ({cursorTile.X}, {cursorTile.Y}), position ({cursorPosition.X}, {cursorPosition.Y}).");
             }, this.OnDrawError);
         }
 

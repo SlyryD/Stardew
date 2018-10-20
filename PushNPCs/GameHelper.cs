@@ -6,8 +6,6 @@ using Microsoft.Xna.Framework.Graphics;
 using SlyryD.Stardew.Common;
 using SlyryD.Stardew.PushNPCs.Framework;
 using SlyryD.Stardew.PushNPCs.Framework.Constants;
-using SlyryD.Stardew.PushNPCs.Framework.Data;
-using SlyryD.Stardew.PushNPCs.Framework.Models;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Objects;
@@ -42,7 +40,6 @@ namespace SlyryD.Stardew.PushNPCs
                 && a.ParentSheetIndex == b.ParentSheetIndex
 
                 // same discriminators
-                && a.GetSpriteType() == b.GetSpriteType()
                 && (a as Boots)?.indexInTileSheet == (b as Boots)?.indexInTileSheet
                 && (a as BreakableContainer)?.Type == (b as BreakableContainer)?.Type
                 && (a as Fence)?.isGate == (b as Fence)?.isGate
@@ -160,6 +157,23 @@ namespace SlyryD.Stardew.PushNPCs
 
             // unknown item
             return null;
+        }
+
+        /****
+        ** UI
+        ****/
+        /// <summary>Show an informational message to the player.</summary>
+        /// <param name="message">The message to show.</param>
+        public void ShowInfoMessage(string message)
+        {
+            CommonHelper.ShowInfoMessage(message);
+        }
+
+        /// <summary>Show an error message to the player.</summary>
+        /// <param name="message">The message to show.</param>
+        public void ShowErrorMessage(string message)
+        {
+            CommonHelper.ShowErrorMessage(message);
         }
     }
 }

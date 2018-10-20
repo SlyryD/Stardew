@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using SlyryD.Stardew.Common;
 using SlyryD.Stardew.PushNPCs.Framework;
+using SlyryD.Stardew.PushNPCs.Components;
 using SlyryD.Stardew.PushNPCs.Framework.Constants;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
@@ -58,7 +59,7 @@ namespace SlyryD.Stardew.PushNPCs
         {
             // initialise functionality
             this.GameHelper = new GameHelper();
-            this.TargetFactory = new TargetFactory(this.Metadata, this.Helper.Translation, this.Helper.Reflection, this.GameHelper);
+            this.TargetFactory = new TargetFactory(this.Helper.Translation, this.Helper.Reflection, this.GameHelper);
             this.DebugInterface = new DebugInterface(this.GameHelper, this.TargetFactory, this.Config, this.Monitor);
 
             // hook up events
