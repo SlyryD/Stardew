@@ -17,6 +17,12 @@ namespace SlyryD.Stardew.PushNPCs.Framework.Constants
         /// <remarks>This is used to account for sprites that extend beyond their tile when searching for targets. These values should be large enough to cover the largest target sprites, but small enough to minimise expensive cursor collision checks.</remarks>
         public static readonly Vector2 MaxTargetSpriteSize = new Vector2(3, 5);
 
+        /// <summary>Tile size constants.</summary>
+        /// <remarks>This is used to do math with fractions of tiles.</remarks>
+        public static readonly int TileSize = Game1.tileSize;
+        public static readonly int HalfTileSize = Game1.tileSize / 2;
+        public static readonly int QuarterTileSize = Game1.tileSize / 4;
+
         /// <summary>The <see cref="StardewValley.Farmer.mailReceived"/> keys referenced by the mod.</summary>
         public static class MailLetters
         {

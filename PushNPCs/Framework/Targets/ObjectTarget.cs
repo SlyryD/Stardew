@@ -29,9 +29,10 @@ namespace SlyryD.Stardew.PushNPCs.Framework.Targets
         /// <param name="gameHelper">Provides utility methods for interacting with the game code.</param>
         /// <param name="obj">The underlying in-game object.</param>
         /// <param name="tilePosition">The object's tile position in the current location (if applicable).</param>
+        /// <param name="position">The object's position in the current location (if applicable).</param>
         /// <param name="reflection">Simplifies access to private game code.</param>
-        public ObjectTarget(GameHelper gameHelper, Object obj, Vector2? tilePosition, IReflectionHelper reflection)
-            : base(gameHelper, TargetType.Object, obj, tilePosition)
+        public ObjectTarget(GameHelper gameHelper, Object obj, Vector2? tilePosition, Vector2? position, IReflectionHelper reflection)
+            : base(gameHelper, TargetType.Object, obj, tilePosition, position)
         {
             this.Reflection = reflection;
             this.CustomSprite = gameHelper.GetSprite(obj, onlyCustom: true); // only get sprite if it's custom; else we'll use contextual logic (e.g. for fence direction)

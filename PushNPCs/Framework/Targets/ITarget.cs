@@ -17,6 +17,9 @@ namespace SlyryD.Stardew.PushNPCs.Framework.Targets
         /// <summary>The object's tile position in the current location (if applicable).</summary>
         Vector2? Tile { get; set; }
 
+        /// <summary>The object's position in the current location (if applicable).</summary>
+        Vector2? Position { get; set;  }
+
 
         /*********
         ** Public methods
@@ -28,6 +31,14 @@ namespace SlyryD.Stardew.PushNPCs.Framework.Targets
         /// <summary>Get whether the object is at the specified map tile position.</summary>
         /// <param name="position">The map tile position.</param>
         bool IsAtTile(Vector2 position);
+
+        /// <summary>Get the target's position, or throw an exception if it doesn't have one.</summary>
+        /// <exception cref="System.InvalidOperationException">The target doesn't have a position.</exception>
+        Vector2 GetPosition();
+
+        /// <summary>Get whether the object is at the specified map position.</summary>
+        /// <param name="position">The map position.</param>
+        bool IsAtPosition(Vector2 position);
 
         /// <summary>Get a strongly-typed value.</summary>
         /// <typeparam name="T">The expected value type.</typeparam>

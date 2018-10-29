@@ -13,9 +13,8 @@ namespace SlyryD.Stardew.PushNPCs.Framework.Targets
         /// <summary>Construct an instance.</summary>
         /// <param name="gameHelper">Provides utility methods for interacting with the game code.</param>
         /// <param name="obj">The underlying in-game object.</param>
-        /// <param name="tilePosition">The object's tile position in the current location (if applicable).</param>
-        public FarmAnimalTarget(GameHelper gameHelper, FarmAnimal obj, Vector2? tilePosition = null)
-            : base(gameHelper, TargetType.FarmAnimal, obj, tilePosition) { }
+        public FarmAnimalTarget(GameHelper gameHelper, FarmAnimal obj)
+            : base(gameHelper, TargetType.FarmAnimal, obj, obj.getTileLocation(), obj.Position) { }
 
         /// <summary>Get a rectangle which roughly bounds the visible sprite relative the viewport.</summary>
         public override Rectangle GetSpriteArea()

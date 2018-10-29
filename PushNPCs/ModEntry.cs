@@ -67,6 +67,7 @@ namespace SlyryD.Stardew.PushNPCs
             //TimeEvents.AfterDayStarted += this.TimeEvents_AfterDayStarted;
             InputEvents.ButtonPressed += this.InputEvents_ButtonPressed;
             GraphicsEvents.OnPostRenderHudEvent += this.GraphicsEvents_OnPostRenderHudEvent;
+            GraphicsEvents.OnPostRenderEvent += this.GraphicsEvents_OnPostRenderEvent;
         }
 
         /// <summary>The method invoked when the player presses a controller, keyboard, or mouse button.</summary>
@@ -101,16 +102,26 @@ namespace SlyryD.Stardew.PushNPCs
                 this.DebugInterface.Draw();
         }
 
+        /// <summary>The method invoked when the world is rendering.</summary>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="e">The event data.</param>
+        private void GraphicsEvents_OnPostRenderEvent(object sender, EventArgs e)
+        {
+            if (this.DebugInterface.Enabled)
+            {
+                Rectangle facingRectangle = this.TargetFactory.GetFacingRectangle(Game1.player);
+                CommonHelper.DrawLine(Game1.spriteBatch, facingRectangle.Left, facingRectangle.Top, new Vector2(facingRectangle.Width, facingRectangle.Height), Color.DarkRed);
+            }
+        }
+
         /****
         ** Helpers
         ****/
         /// <summary>Push the NPC in front of the player.</summary>
         private void Push()
         {
-            // TODO: Search positions in front of player instead of using tiles
-            ITarget target = this.TargetFactory.GetTargetFromTile(Game1.currentLocation, Game1.player.getTileLocation())
-                ?? this.TargetFactory.GetTargetFromTile(Game1.currentLocation, this.GetTileInFront());
-            if (target != null) // TODO: Figure out when this is null
+            ITarget target = this.TargetFactory.GetTarget(Game1.currentLocation);
+            if (target != null)
             {
                 switch (target.Type)
                 {
@@ -121,17 +132,17 @@ namespace SlyryD.Stardew.PushNPCs
                     case TargetType.Villager:
                         var npc = target.GetValue<NPC>();
                         this.Monitor.Log("NPC: " + npc.Name);
-                        npc.setTileLocation(2 * npc.getTileLocation() - Game1.player.getTileLocation());
+                        npc.Position += Game1.tileSize * this.FacingDirectionToTileOffset(Game1.player.FacingDirection);
                         break;
                     case TargetType.FarmAnimal:
                         var animal = target.GetValue<FarmAnimal>();
                         this.Monitor.Log("Animal: " + animal.Name);
-                        animal.setTileLocation(2 * animal.getTileLocation() - Game1.player.getTileLocation());
+                        animal.Position += Game1.tileSize * this.FacingDirectionToTileOffset(Game1.player.FacingDirection);
                         break;
                     case TargetType.Farmer:
                         var farmer = target.GetValue<Farmer>();
                         this.Monitor.Log("Farmer: " + farmer.Name);
-                        farmer.setTileLocation(2 * farmer.getTileLocation() - Game1.player.getTileLocation());
+                        farmer.Position += Game1.tileSize * this.FacingDirectionToTileOffset(Game1.player.FacingDirection);
                         break;
                     default:
                         var obj = target.GetValue<StardewValley.Object>();
@@ -156,14 +167,6 @@ namespace SlyryD.Stardew.PushNPCs
                 default:
                     throw new Exception("Invalid facing direction");
             }
-        }
-
-        private Vector2 GetTileInFront()
-        {
-            Farmer player = Game1.player;
-            return player.getTileLocation() + this.FacingDirectionToTileOffset(player.FacingDirection);
-            //this.Monitor.Log("Position: " + string.Join(",", player.Position));
-            //this.Monitor.Log("Position in front: " + string.Join(",", player.Position + Game1.tileSize * this.FacingDirectionToTileOffset(player.FacingDirection)));
         }
     }
 }

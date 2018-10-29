@@ -2,16 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using SlyryD.Stardew.Common;
 using SlyryD.Stardew.PushNPCs.Framework.Constants;
 using SlyryD.Stardew.PushNPCs.Framework.Targets;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Characters;
-using StardewValley.Locations;
-using StardewValley.Menus;
 using StardewValley.Monsters;
-using StardewValley.TerrainFeatures;
-using SObject = StardewValley.Object;
 
 namespace SlyryD.Stardew.PushNPCs.Framework
 {
@@ -51,18 +48,13 @@ namespace SlyryD.Stardew.PushNPCs.Framework
         /****
         ** Targets
         ****/
-        /// <summary>Get all potential lookup targets in the current location.</summary>
+        /// <summary>Get all potential targets in the current location.</summary>
         /// <param name="location">The current location.</param>
-        /// <param name="originTile">The tile from which to search for targets.</param>
-        /// <param name="includeMapTile">Whether to allow matching the map tile itself.</param>
-        public IEnumerable<ITarget> GetNearbyTargets(GameLocation location, Vector2 originTile)
+        public IEnumerable<ITarget> GetTargetsInLocation(GameLocation location)
         {
             // NPCs
             foreach (NPC npc in location.characters)
             {
-                if (!this.GameHelper.CouldSpriteOccludeTile(npc.getTileLocation(), originTile))
-                    continue;
-
                 TargetType type = TargetType.Unknown;
                 if (npc is Child || npc.isVillager())
                     type = TargetType.Villager;
@@ -75,23 +67,22 @@ namespace SlyryD.Stardew.PushNPCs.Framework
                 else if (npc is Monster)
                     type = TargetType.Monster;
 
-                yield return new CharacterTarget(this.GameHelper, type, npc, npc.getTileLocation(), this.Reflection);
+                yield return new CharacterTarget(this.GameHelper, type, npc, this.Reflection);
             }
 
             // animals
             foreach (FarmAnimal animal in (location as Farm)?.animals.Values ?? (location as AnimalHouse)?.animals.Values ?? Enumerable.Empty<FarmAnimal>())
             {
-                if (!this.GameHelper.CouldSpriteOccludeTile(animal.getTileLocation(), originTile))
-                    continue;
-
-                yield return new FarmAnimalTarget(this.GameHelper, animal, animal.getTileLocation());
+                yield return new FarmAnimalTarget(this.GameHelper, animal);
             }
 
             // players
             foreach (Farmer farmer in location.farmers)
             {
-                if (!this.GameHelper.CouldSpriteOccludeTile(farmer.getTileLocation(), originTile))
+                if (farmer == Game1.player)
+                {
                     continue;
+                }
 
                 yield return new FarmerTarget(this.GameHelper, farmer);
             }
@@ -100,68 +91,41 @@ namespace SlyryD.Stardew.PushNPCs.Framework
         /// <summary>Get the target on the specified tile.</summary>
         /// <param name="location">The current location.</param>
         /// <param name="tile">The tile to search.</param>
-        /// <param name="includeMapTile">Whether to allow matching the map tile itself.</param>
-        public ITarget GetTargetFromTile(GameLocation location, Vector2 tile)
+        public ITarget GetTarget(GameLocation location)
         {
+            Rectangle facingRectangle = this.GetFacingRectangle(Game1.player);
             return (
-                from target in this.GetNearbyTargets(location, tile)
+                from target in this.GetTargetsInLocation(location)
                 where
                     target.Type != TargetType.Unknown
-                    && target.Value != Game1.player
-                    && target.IsAtTile(tile)
+                    && facingRectangle.Intersects(target.GetSpriteArea())
                 select target
             ).FirstOrDefault();
-        }
-
-        /// <summary>Get the target at the specified coordinate.</summary>
-        /// <param name="location">The current location.</param>
-        /// <param name="tile">The tile to search.</param>
-        /// <param name="position">The viewport-relative pixel coordinate to search.</param>
-        /// <param name="includeMapTile">Whether to allow matching the map tile itself.</param>
-        public ITarget GetTargetFromScreenCoordinate(GameLocation location, Vector2 tile, Vector2 position)
-        {
-            // get target sprites which might overlap cursor position (first approximation)
-            Rectangle tileArea = this.GameHelper.GetScreenCoordinatesFromTile(tile);
-            var candidates = (
-                from target in this.GetNearbyTargets(location, tile)
-                let spriteArea = target.GetSpriteArea()
-                let isAtTile = target.IsAtTile(tile)
-                where
-                    target.Type != TargetType.Unknown
-                    && (isAtTile || spriteArea.Intersects(tileArea))
-                orderby
-                    target.Type != TargetType.Tile ? 0 : 1, // Tiles are always under anything else.
-                    spriteArea.Y descending,                // A higher Y value is closer to the foreground, and will occlude any sprites behind it.
-                    spriteArea.X ascending                  // If two sprites at the same Y coordinate overlap, assume the left sprite occludes the right.
-
-                select new { target, spriteArea, isAtTile }
-            ).ToArray();
-
-            // choose best match
-            return
-                candidates.FirstOrDefault(p => p.target.SpriteIntersectsPixel(tile, position, p.spriteArea))?.target // sprite pixel under cursor
-                ?? candidates.FirstOrDefault(p => p.isAtTile)?.target; // tile under cursor
         }
 
         /*********
         ** Private methods
         *********/
-        /// <summary>Get the tile the player is facing.</summary>
+        /// <summary>Get a rectangle in front of the player.</summary>
         /// <param name="player">The player to check.</param>
-        private Vector2 GetFacingTile(Farmer player)
+        public Rectangle GetFacingRectangle(Farmer player)
         {
-            Vector2 tile = player.getTileLocation();
+            Vector2 position = player.Position - new Vector2(Game1.viewport.X, Game1.viewport.Y);
             FacingDirection direction = (FacingDirection)player.FacingDirection;
             switch (direction)
             {
                 case FacingDirection.Up:
-                    return tile + new Vector2(0, -1);
+                    // { { X: 0 Y: -64 Width: 64 Height: 64} }
+                    return new Rectangle((int)position.X, (int)position.Y - Constant.TileSize, Constant.TileSize, Constant.TileSize);
                 case FacingDirection.Right:
-                    return tile + new Vector2(1, 0);
+                    // { { X: 48 Y: -32 Width: 64 Height: 64} }
+                    return new Rectangle((int)position.X + 3 * Constant.QuarterTileSize, (int)position.Y - Constant.HalfTileSize, Constant.TileSize, Constant.TileSize);
                 case FacingDirection.Down:
-                    return tile + new Vector2(0, 1);
+                    // { { X: 0 Y: -32 Width: 64 Height: 64} }
+                    return new Rectangle((int)position.X, (int)position.Y - Constant.HalfTileSize, Constant.TileSize, Constant.TileSize);
                 case FacingDirection.Left:
-                    return tile + new Vector2(-1, 0);
+                    // { { X: -48 Y: -32 Width: 64 Height: 64} }
+                    return new Rectangle((int)position.X - 3 * Constant.QuarterTileSize, (int)position.Y - Constant.HalfTileSize, Constant.TileSize, Constant.TileSize);
                 default:
                     throw new NotSupportedException($"Unknown facing direction {direction}");
             }

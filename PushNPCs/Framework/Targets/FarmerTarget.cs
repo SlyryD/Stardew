@@ -13,7 +13,7 @@ namespace SlyryD.Stardew.PushNPCs.Framework.Targets
         /// <param name="gameHelper">Provides utility methods for interacting with the game code.</param>
         /// <param name="farmer">The underlying in-game object.</param>
         public FarmerTarget(GameHelper gameHelper, SFarmer farmer)
-            : base(gameHelper, TargetType.Farmer, farmer, farmer.getTileLocation()) { }
+            : base(gameHelper, TargetType.Farmer, farmer, farmer.getTileLocation(), farmer.Position) { }
 
         /// <summary>Get a rectangle which roughly bounds the visible sprite relative the viewport.</summary>
         public override Rectangle GetSpriteArea()

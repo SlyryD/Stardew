@@ -27,6 +27,8 @@ namespace SlyryD.Stardew.PushNPCs.Framework.Targets
         /// <summary>The object's tile position in the current location (if applicable).</summary>
         public Vector2? Tile { get; set; }
 
+        /// <summary>The object's position in the current location (if applicable).</summary>
+        public Vector2? Position { get; set; }
 
         /*********
         ** Public methods
@@ -45,6 +47,22 @@ namespace SlyryD.Stardew.PushNPCs.Framework.Targets
         public bool IsAtTile(Vector2 position)
         {
             return this.Tile != null && this.Tile == position;
+        }
+
+        /// <summary>Get the target's position, or throw an exception if it doesn't have one.</summary>
+        /// <exception cref="InvalidOperationException">The target doesn't have a position.</exception>
+        public Vector2 GetPosition()
+        {
+            if (this.Position == null)
+                throw new InvalidOperationException($"This {this.Type} target doesn't have a position.");
+            return this.Position.Value;
+        }
+
+        /// <summary>Get whether the object is at the specified map position.</summary>
+        /// <param name="position">The map position.</param>
+        public bool IsAtPosition(Vector2 position)
+        {
+            return this.Position != null && this.Position == position;
         }
 
         /// <summary>Get a strongly-typed instance.</summary>
@@ -78,12 +96,13 @@ namespace SlyryD.Stardew.PushNPCs.Framework.Targets
         /// <param name="type">The target type.</param>
         /// <param name="obj">The underlying in-game object.</param>
         /// <param name="tilePosition">The object's tile position in the current location (if applicable).</param>
-        protected GenericTarget(GameHelper gameHelper, TargetType type, object obj, Vector2? tilePosition = null)
+        protected GenericTarget(GameHelper gameHelper, TargetType type, object obj, Vector2? tilePosition = null, Vector2? position = null)
         {
             this.GameHelper = gameHelper;
             this.Type = type;
             this.Value = obj;
             this.Tile = tilePosition;
+            this.Position = position;
         }
 
         /// <summary>Get a rectangle which roughly bounds the visible sprite.</summary>
