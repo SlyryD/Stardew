@@ -1,5 +1,4 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Monsters;
@@ -30,57 +29,51 @@ namespace SlyryD.Stardew.PushNPCs.Framework.Targets
             this.Reflection = reflectionHelper;
         }
 
-        /// <summary>Get a rectangle which roughly bounds the visible sprite relative the viewport.</summary>
+        /// <summary>Get the area occupied by the target (absolute).</summary>
+        public override Rectangle GetOccupiedArea()
+        {
+            NPC npc = (NPC)this.Value;
+            return npc.GetBoundingBox(); // the 'occupied' area at the NPC's feet
+        }
+
+        /// <summary>Get a rectangle that roughly bounds the visible sprite (absolute).</summary>
         public override Rectangle GetSpriteArea()
         {
             NPC npc = (NPC)this.Value;
             AnimatedSprite sprite = npc.Sprite;
-            var boundingBox = npc.GetBoundingBox(); // the 'occupied' area at the NPC's feet
+            Rectangle boundingBox = npc.GetBoundingBox(); // the 'occupied' area at the NPC's feet
 
             // calculate y origin
-            float yOrigin;
+            int yOrigin;
             if (npc is DustSpirit)
+            {
                 yOrigin = boundingBox.Bottom;
+            }
             else if (npc is Bat)
+            {
                 yOrigin = boundingBox.Center.Y;
+            }
             else if (npc is Bug)
-                yOrigin = boundingBox.Top - sprite.SpriteHeight * Game1.pixelZoom + (float)(System.Math.Sin(Game1.currentGameTime.TotalGameTime.Milliseconds / 1000.0 * (2.0 * System.Math.PI)) * 10.0);
+            {
+                yOrigin = boundingBox.Top - sprite.SpriteHeight * Game1.pixelZoom + (int)(System.Math.Sin(Game1.currentGameTime.TotalGameTime.Milliseconds / 1000.0 * (2.0 * System.Math.PI)) * 10.0);
+            }
             else if (npc is SquidKid squidKid)
             {
                 int yOffset = this.Reflection.GetField<int>(squidKid, "yOffset").GetValue();
                 yOrigin = boundingBox.Bottom - sprite.SpriteHeight * Game1.pixelZoom + yOffset;
             }
             else
+            {
                 yOrigin = boundingBox.Top;
+            }
 
             // get bounding box
             int height = sprite.SpriteHeight * Game1.pixelZoom;
             int width = sprite.SpriteWidth * Game1.pixelZoom;
-            float x = boundingBox.Center.X - (width / 2);
-            float y = yOrigin + boundingBox.Height - height + npc.yJumpOffset * 2;
+            int x = boundingBox.Center.X - (width / 2);
+            int y = yOrigin + boundingBox.Height - height + npc.yJumpOffset * 2;
 
-            return new Rectangle((int)(x - Game1.viewport.X), (int)(y - Game1.viewport.Y), width, height);
-        }
-
-        /// <summary>Get whether the visible sprite intersects the specified coordinate. This can be an expensive test.</summary>
-        /// <param name="tile">The tile to search.</param>
-        /// <param name="position">The viewport-relative coordinates to search.</param>
-        /// <param name="spriteArea">The approximate sprite area calculated by <see cref="GenericTarget.GetSpriteArea"/>.</param>
-        public override bool SpriteIntersectsPixel(Vector2 tile, Vector2 position, Rectangle spriteArea)
-        {
-            NPC npc = (NPC)this.Value;
-            AnimatedSprite sprite = npc.Sprite;
-
-            // allow any part of the sprite area for monsters
-            // (Monsters have complicated and inconsistent sprite behaviour which isn't really
-            // worth reverse-engineering, and sometimes move around so much that a pixel-perfect
-            // check is inconvenient anyway.)
-            if (npc is Monster)
-                return spriteArea.Contains((int)position.X, (int)position.Y);
-
-            // check sprite for non-monster NPCs
-            SpriteEffects spriteEffects = npc.flip ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
-            return this.SpriteIntersectsPixel(tile, position, spriteArea, sprite.Texture, sprite.sourceRect, spriteEffects);
+            return new Rectangle(x, y, width, height);
         }
     }
 }

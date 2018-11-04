@@ -18,7 +18,7 @@ namespace SlyryD.Stardew.PushNPCs.Framework.Targets
         Vector2? Tile { get; set; }
 
         /// <summary>The object's position in the current location (if applicable).</summary>
-        Vector2? Position { get; set;  }
+        Vector2? Position { get; set; }
 
 
         /*********
@@ -44,13 +44,10 @@ namespace SlyryD.Stardew.PushNPCs.Framework.Targets
         /// <typeparam name="T">The expected value type.</typeparam>
         T GetValue<T>();
 
-        /// <summary>Get a rectangle which roughly bounds the visible sprite relative the viewport.</summary>
-        Rectangle GetSpriteArea();
+        /// <summary>Get the area occupied by the target (absolute).</summary>
+        Rectangle GetOccupiedArea();
 
-        /// <summary>Get whether the visible sprite intersects the specified coordinate. This can be an expensive test.</summary>
-        /// <param name="tile">The tile to search.</param>
-        /// <param name="position">The viewport-relative coordinates to search.</param>
-        /// <param name="spriteArea">The approximate sprite area calculated by <see cref="GetSpriteArea"/>.</param>
-        bool SpriteIntersectsPixel(Vector2 tile, Vector2 position, Rectangle spriteArea);
+        /// <summary>Get a rectangle that roughly bounds the visible sprite (absolute).</summary>
+        Rectangle GetSpriteArea();
     }
 }

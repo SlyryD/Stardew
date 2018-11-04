@@ -15,20 +15,18 @@ namespace SlyryD.Stardew.PushNPCs.Framework.Targets
         public FarmerTarget(GameHelper gameHelper, SFarmer farmer)
             : base(gameHelper, TargetType.Farmer, farmer, farmer.getTileLocation(), farmer.Position) { }
 
-        /// <summary>Get a rectangle which roughly bounds the visible sprite relative the viewport.</summary>
+        /// <summary>Get the area occupied by the target (absolute).</summary>
+        public override Rectangle GetOccupiedArea()
+        {
+            SFarmer farmer = (SFarmer)this.Value;
+            return farmer.GetBoundingBox();
+        }
+
+        /// <summary>Get a rectangle that roughly bounds the visible sprite (absolute).</summary>
         public override Rectangle GetSpriteArea()
         {
             SFarmer farmer = (SFarmer)this.Value;
             return this.GetSpriteArea(farmer.GetBoundingBox(), farmer.FarmerSprite.SourceRect);
-        }
-
-        /// <summary>Get whether the visible sprite intersects the specified coordinate. This can be an expensive test.</summary>
-        /// <param name="tile">The tile to search.</param>
-        /// <param name="position">The viewport-relative coordinates to search.</param>
-        /// <param name="spriteArea">The approximate sprite area calculated by <see cref="GenericTarget.GetSpriteArea"/>.</param>
-        public override bool SpriteIntersectsPixel(Vector2 tile, Vector2 position, Rectangle spriteArea)
-        {
-            return spriteArea.Contains((int)position.X, (int)position.Y);
         }
     }
 }

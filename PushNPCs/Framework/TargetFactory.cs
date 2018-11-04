@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
-using SlyryD.Stardew.Common;
 using SlyryD.Stardew.PushNPCs.Framework.Constants;
 using SlyryD.Stardew.PushNPCs.Framework.Targets;
 using StardewModdingAPI;
@@ -21,9 +20,6 @@ namespace SlyryD.Stardew.PushNPCs.Framework
         /// <summary>Simplifies access to private game code.</summary>
         private readonly IReflectionHelper Reflection;
 
-        /// <summary>Provides translations stored in the mod folder.</summary>
-        private readonly ITranslationHelper Translations;
-
         /// <summary>Provides utility methods for interacting with the game code.</summary>
         private readonly GameHelper GameHelper;
 
@@ -35,15 +31,14 @@ namespace SlyryD.Stardew.PushNPCs.Framework
         ** Constructors
         ****/
         /// <summary>Construct an instance.</summary>
-        /// <param name="translations">Provides translations stored in the mod folder.</param>
         /// <param name="reflection">Simplifies access to private game code.</param>
         /// <param name="gameHelper">Provides utility methods for interacting with the game code.</param>
-        public TargetFactory(ITranslationHelper translations, IReflectionHelper reflection, GameHelper gameHelper)
+        public TargetFactory(IReflectionHelper reflection, GameHelper gameHelper)
         {
-            this.Translations = translations;
             this.Reflection = reflection;
             this.GameHelper = gameHelper;
         }
+
 
         /****
         ** Targets
@@ -57,15 +52,25 @@ namespace SlyryD.Stardew.PushNPCs.Framework
             {
                 TargetType type = TargetType.Unknown;
                 if (npc is Child || npc.isVillager())
+                {
                     type = TargetType.Villager;
+                }
                 else if (npc is Horse)
+                {
                     type = TargetType.Horse;
+                }
                 else if (npc is Junimo)
+                {
                     type = TargetType.Junimo;
+                }
                 else if (npc is Pet)
+                {
                     type = TargetType.Pet;
+                }
                 else if (npc is Monster)
+                {
                     type = TargetType.Monster;
+                }
 
                 yield return new CharacterTarget(this.GameHelper, type, npc, this.Reflection);
             }
@@ -103,6 +108,7 @@ namespace SlyryD.Stardew.PushNPCs.Framework
             ).FirstOrDefault();
         }
 
+
         /*********
         ** Private methods
         *********/
@@ -110,7 +116,7 @@ namespace SlyryD.Stardew.PushNPCs.Framework
         /// <param name="player">The player to check.</param>
         public Rectangle GetFacingRectangle(Farmer player)
         {
-            Vector2 position = player.Position - new Vector2(Game1.viewport.X, Game1.viewport.Y);
+            Vector2 position = player.Position;
             FacingDirection direction = (FacingDirection)player.FacingDirection;
             switch (direction)
             {

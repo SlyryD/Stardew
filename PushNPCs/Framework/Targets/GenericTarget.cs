@@ -1,6 +1,5 @@
 using System;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 
 namespace SlyryD.Stardew.PushNPCs.Framework.Targets
@@ -30,6 +29,7 @@ namespace SlyryD.Stardew.PushNPCs.Framework.Targets
         /// <summary>The object's position in the current location (if applicable).</summary>
         public Vector2? Position { get; set; }
 
+
         /*********
         ** Public methods
         *********/
@@ -38,7 +38,10 @@ namespace SlyryD.Stardew.PushNPCs.Framework.Targets
         public Vector2 GetTile()
         {
             if (this.Tile == null)
+            {
                 throw new InvalidOperationException($"This {this.Type} target doesn't have a tile position.");
+            }
+
             return this.Tile.Value;
         }
 
@@ -54,7 +57,10 @@ namespace SlyryD.Stardew.PushNPCs.Framework.Targets
         public Vector2 GetPosition()
         {
             if (this.Position == null)
+            {
                 throw new InvalidOperationException($"This {this.Type} target doesn't have a position.");
+            }
+
             return this.Position.Value;
         }
 
@@ -72,19 +78,20 @@ namespace SlyryD.Stardew.PushNPCs.Framework.Targets
             return (T)this.Value;
         }
 
-        /// <summary>Get a rectangle which roughly bounds the visible sprite relative the viewport.</summary>
-        public virtual Rectangle GetSpriteArea()
+        /// <summary>Get the area occupied by the target (absolute).</summary>
+        public virtual Rectangle GetOccupiedArea()
         {
-            return this.GameHelper.GetScreenCoordinatesFromTile(this.GetTile());
+            Rectangle occupiedArea = this.GameHelper.GetScreenCoordinatesFromTile(this.GetTile());
+            occupiedArea.Offset(Game1.viewport.X, Game1.viewport.Y);
+            return occupiedArea;
         }
 
-        /// <summary>Get whether the visible sprite intersects the specified coordinate. This can be an expensive test.</summary>
-        /// <param name="tile">The tile to search.</param>
-        /// <param name="position">The viewport-relative coordinates to search.</param>
-        /// <param name="spriteArea">The approximate sprite area calculated by <see cref="GetSpriteArea"/>.</param>
-        public virtual bool SpriteIntersectsPixel(Vector2 tile, Vector2 position, Rectangle spriteArea)
+        /// <summary>Get a rectangle that roughly bounds the visible sprite (absolute).</summary>
+        public virtual Rectangle GetSpriteArea()
         {
-            return this.IsAtTile(tile);
+            Rectangle spriteArea = this.GameHelper.GetScreenCoordinatesFromTile(this.GetTile());
+            spriteArea.Offset(Game1.viewport.X, Game1.viewport.Y);
+            return spriteArea;
         }
 
 
@@ -105,7 +112,7 @@ namespace SlyryD.Stardew.PushNPCs.Framework.Targets
             this.Position = position;
         }
 
-        /// <summary>Get a rectangle which roughly bounds the visible sprite.</summary>
+        /// <summary>Get a rectangle that roughly bounds the visible sprite (absolute).</summary>
         /// <param name="boundingBox">The occupied 'floor space' at the bottom of the sprite in the world.</param>
         /// <param name="sourceRectangle">The sprite's source rectangle in the sprite sheet.</param>
         protected Rectangle GetSpriteArea(Rectangle boundingBox, Rectangle sourceRectangle)
@@ -114,26 +121,7 @@ namespace SlyryD.Stardew.PushNPCs.Framework.Targets
             int width = sourceRectangle.Width * Game1.pixelZoom;
             int x = boundingBox.Center.X - (width / 2);
             int y = boundingBox.Y + boundingBox.Height - height;
-            return new Rectangle(x - Game1.viewport.X, y - Game1.viewport.Y, width, height);
-        }
-
-        /// <summary>Get whether the visible sprite intersects the specified coordinate. This can be an expensive test.</summary>
-        /// <param name="tile">The tile to search.</param>
-        /// <param name="position">The viewport-relative coordinates to search.</param>
-        /// <param name="spriteArea">The approximate sprite area calculated by <see cref="GetSpriteArea"/>.</param>
-        /// <param name="spriteSheet">The sprite sheet containing the displayed sprite.</param>
-        /// <param name="spriteSourceRectangle">The coordinates and dimensions of the sprite within the sprite sheet.</param>
-        /// <param name="spriteEffects">The transformation to apply on the sprite.</param>
-        protected bool SpriteIntersectsPixel(Vector2 tile, Vector2 position, Rectangle spriteArea, Texture2D spriteSheet, Rectangle spriteSourceRectangle, SpriteEffects spriteEffects = SpriteEffects.None)
-        {
-            // get sprite sheet coordinate
-            Vector2 spriteSheetPosition = this.GameHelper.GetSpriteSheetCoordinates(position, spriteArea, spriteSourceRectangle, spriteEffects);
-            if (!spriteSourceRectangle.Contains((int)spriteSheetPosition.X, (int)spriteSheetPosition.Y))
-                return false;
-
-            // check pixel
-            Color pixel = this.GameHelper.GetSpriteSheetPixel<Color>(spriteSheet, spriteSheetPosition);
-            return pixel.A != 0; // pixel not transparent
+            return new Rectangle(x, y, width, height);
         }
     }
 }
