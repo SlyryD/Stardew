@@ -123,7 +123,7 @@ namespace SlyryD.Stardew.PushNPCs
         /****
         ** Helpers
         ****/
-        /// <summary>Push the NPC in front of the player.</summary>
+        /// <summary>Push the target in front of the player.</summary>
         private void Push()
         {
             ITarget target = this.TargetFactory.GetTarget(Game1.currentLocation);
@@ -158,6 +158,12 @@ namespace SlyryD.Stardew.PushNPCs
             }
         }
 
+        /// <summary>
+        /// Get push vector for a target that does not put the target in an invalid location
+        /// </summary>
+        /// <param name="target">Target to push</param>
+        /// <param name="name">Name of the target</param>
+        /// <returns>Push vector</returns>
         private Vector2 GetPushVector(ITarget target, string name)
         {
             Vector2 direction = this.TileOffsetFromFacingDirection(Game1.player.FacingDirection);
@@ -171,12 +177,17 @@ namespace SlyryD.Stardew.PushNPCs
                 if (tiles.All(tile => this.IsPassable(Game1.currentLocation, tile, destinationArea) && !this.IsOccupied(Game1.currentLocation, tile, destinationArea, name)))
                 {
                     return pushVector;
-                } 
+                }
             }
 
             return new Vector2(0, 0);
         }
 
+        /// <summary>
+        /// Get tiles intersecting the area rectangle (absolute)
+        /// </summary>
+        /// <param name="absoluteArea">The rectangle to check for intersecting tiles</param>
+        /// <returns>Tiles intersecting the area</returns>
         private IEnumerable<Vector2> TilesFromAbsoluteArea(Rectangle absoluteArea)
         {
             int left = absoluteArea.Left / Constant.TileSize;
@@ -269,6 +280,11 @@ namespace SlyryD.Stardew.PushNPCs
             return false;
         }
 
+        /// <summary>
+        /// Get the tile offset of the adjacent tile the player is facing.
+        /// </summary>
+        /// <param name="facingDirection">The direction the player is facing.</param>
+        /// <returns>Tile offset</returns>
         private Vector2 TileOffsetFromFacingDirection(int facingDirection)
         {
             switch ((FacingDirection)facingDirection)
