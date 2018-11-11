@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using SlyryD.Stardew.Common;
@@ -137,17 +138,17 @@ namespace SlyryD.Stardew.PushNPCs
                     case TargetType.Villager:
                         NPC npc = target.GetValue<NPC>();
                         this.Monitor.Log("NPC: " + npc.Name);
-                        npc.Position += this.GetPushVector(target);
+                        npc.Position += this.GetPushVector(target, npc.Name);
                         break;
                     case TargetType.FarmAnimal:
                         FarmAnimal animal = target.GetValue<FarmAnimal>();
                         this.Monitor.Log("Animal: " + animal.Name);
-                        animal.Position += this.GetPushVector(target);
+                        animal.Position += this.GetPushVector(target, animal.Name);
                         break;
                     case TargetType.Farmer:
                         Farmer farmer = target.GetValue<Farmer>();
                         this.Monitor.Log("Farmer: " + farmer.Name);
-                        farmer.Position += this.GetPushVector(target);
+                        farmer.Position += this.GetPushVector(target, farmer.Name);
                         break;
                     default:
                         StardewValley.Object obj = target.GetValue<StardewValley.Object>();
@@ -157,7 +158,7 @@ namespace SlyryD.Stardew.PushNPCs
             }
         }
 
-        private Vector2 GetPushVector(ITarget target)
+        private Vector2 GetPushVector(ITarget target, string name)
         {
             Vector2 direction = this.TileOffsetFromFacingDirection(Game1.player.FacingDirection);
             for (int magnitude = Game1.tileSize; magnitude > 0; magnitude--)
@@ -165,37 +166,30 @@ namespace SlyryD.Stardew.PushNPCs
                 Vector2 pushVector = magnitude * direction;
                 Rectangle destinationArea = target.GetOccupiedArea();
                 destinationArea.Offset((int)pushVector.X, (int)pushVector.Y);
-                if (Game1.currentLocation.isAreaClear(this.TileAreaFromAbsoluteArea(destinationArea)))
+
+                IEnumerable<Vector2> tiles = this.TilesFromAbsoluteArea(destinationArea);
+                if (tiles.All(tile => this.IsPassable(Game1.currentLocation, tile, destinationArea) && !this.IsOccupied(Game1.currentLocation, tile, destinationArea, name)))
                 {
                     return pushVector;
-                }
+                } 
             }
 
             return new Vector2(0, 0);
         }
 
-        private Rectangle TileAreaFromAbsoluteArea(Rectangle absoluteArea)
+        private IEnumerable<Vector2> TilesFromAbsoluteArea(Rectangle absoluteArea)
         {
             int left = absoluteArea.Left / Constant.TileSize;
             int top = absoluteArea.Top / Constant.TileSize;
             int right = (int)Math.Ceiling(absoluteArea.Right / (double)Constant.TileSize);
             int bottom = (int)Math.Ceiling(absoluteArea.Bottom / (double)Constant.TileSize);
-            return new Rectangle(left, right, right - left, bottom - top);
-        }
-
-        private Vector2 GetPushDestination(Vector2 origin)
-        {
-            Vector2 direction = this.TileOffsetFromFacingDirection(Game1.player.FacingDirection);
-            for (int magnitude = Game1.tileSize; magnitude > 0; magnitude--)
+            for (int x = left; x < right; ++x)
             {
-                Vector2 destination = origin + (magnitude * direction);
-                if (Game1.currentLocation.isPointPassable(new xTile.Dimensions.Location((int)destination.X - Game1.viewport.X, (int)destination.Y - Game1.viewport.Y), Game1.viewport))
+                for (int y = top; y < bottom; ++y)
                 {
-                    return destination;
+                    yield return new Vector2(x, y);
                 }
             }
-
-            return origin;
         }
 
         /// <summary>Get whether a tile is passable.</summary>
@@ -207,14 +201,18 @@ namespace SlyryD.Stardew.PushNPCs
         {
             // check layer properties
             if (location.isTilePassable(new xTile.Dimensions.Location((int)tile.X, (int)tile.Y), Game1.viewport))
+            {
                 return true;
+            }
 
             // allow bridges
             if (location.doesTileHaveProperty((int)tile.X, (int)tile.Y, "Passable", "Buildings") != null)
             {
                 xTile.Tiles.Tile backTile = location.map.GetLayer("Back").PickTile(new xTile.Dimensions.Location(tilePixels.X, tilePixels.Y), Game1.viewport.Size);
                 if (backTile == null || !backTile.TileIndexProperties.TryGetValue("Passable", out xTile.ObjectModel.PropertyValue value) || value != "F")
+                {
                     return true;
+                }
             }
 
             return false;
@@ -224,16 +222,21 @@ namespace SlyryD.Stardew.PushNPCs
         /// <param name="location">The current location.</param>
         /// <param name="tile">The tile to check.</param>
         /// <param name="tilePixels">The tile area in pixels.</param>
+        /// <param name="name">The name of the thing we are pushing, so we do not consider it as already occupying the destination.</param>
         /// <remarks>Derived from <see cref="GameLocation.isCollidingPosition(Rectangle,xTile.Dimensions.Rectangle,bool)"/> and <see cref="Farm.isCollidingPosition(Rectangle,xTile.Dimensions.Rectangle,bool,int,bool,Character,bool,bool,bool)"/>.</remarks>
-        private bool IsOccupied(GameLocation location, Vector2 tile, Rectangle tilePixels)
+        private bool IsOccupied(GameLocation location, Vector2 tile, Rectangle tilePixels, string name)
         {
             // show open gate as passable
             if (location.objects.TryGetValue(tile, out StardewValley.Object obj) && obj is Fence fence && fence.isGate.Value && fence.gatePosition.Value == Fence.gateOpenedPosition)
+            {
                 return false;
+            }
 
             // check for objects, characters, or terrain features
-            if (location.isTileOccupiedIgnoreFloors(tile/*, npc.name*/))
+            if (location.isTileOccupiedIgnoreFloors(tile, name))
+            {
                 return true;
+            }
 
             // buildings
             if (location is BuildableGameLocation buildableLocation)
@@ -242,19 +245,25 @@ namespace SlyryD.Stardew.PushNPCs
                 {
                     Rectangle buildingArea = new Rectangle(building.tileX.Value, building.tileY.Value, building.tilesWide.Value, building.tilesHigh.Value);
                     if (buildingArea.Contains((int)tile.X, (int)tile.Y))
+                    {
                         return true;
+                    }
                 }
             }
 
             // large terrain features
             if (location.largeTerrainFeatures.Any(p => p.getBoundingBox().Intersects(tilePixels)))
+            {
                 return true;
+            }
 
             // resource clumps
             if (location is Farm farm)
             {
                 if (farm.resourceClumps.Any(p => p.getBoundingBox(p.tile.Value).Intersects(tilePixels)))
+                {
                     return true;
+                }
             }
 
             return false;
